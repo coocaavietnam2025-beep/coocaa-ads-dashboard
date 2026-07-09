@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo Chiến dịch / Campaign Report / 广告系列报告 — TV Khung Tranh Coocaa</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "PingFang SC", "Microsoft YaHei", Helvetica, Arial, sans-serif;
+    background: #f5f6f8;
+    color: #1c2126;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 20px 48px; }
+  .top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .top h1 { font-size: 20px; margin: 0 0 4px; }
+  .top .sub { font-size: 13px; color: #6b7280; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+  .badge.paused { background: #fef3c7; color: #92400e; }
+  .badge.active { background: #d1fae5; color: #065f46; }
+  .badge.other { background: #e5e7eb; color: #374151; }
+  .langbar { display: flex; gap: 6px; }
+  .langbtn { padding: 7px 14px; border-radius: 8px; border: 1px solid #d1d5db; background: #fff; font-size: 13px; cursor: pointer; color: #374151; font-weight: 600; }
+  .langbtn.active { background: #111827; color: #fff; border-color: #111827; }
+  .notice { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 18px; display: none; }
+  .notice.show { display: block; }
+  .errbox { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 18px; display: none; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px; }
+  .kpi .label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .kpi .value { font-size: 19px; font-weight: 700; color: #111827; line-height: 1.2; }
+  .kpi .sublabel { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; margin-bottom: 22px; }
+  .card h2 { font-size: 15px; margin: 0 0 14px; }
+  .chart-box { position: relative; height: 260px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #f0f1f3; white-space: nowrap; }
+  th { color: #6b7280; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .02em; }
+  tr:last-child td { border-bottom: none; }
+  .name-cell { display: flex; align-items: center; gap: 10px; white-space: normal; min-width: 220px; }
+  .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; }
+  .name-txt { font-weight: 600; font-size: 13px; }
+  .name-sub { font-size: 11px; color: #9ca3af; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.paused { background: #f59e0b; }
+  .status-dot.active { background: #10b981; }
+  .status-dot.other { background: #9ca3af; }
+  .foot { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 24px; }
+  .loading { font-size: 13px; color: #9ca3af; padding: 20px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div>
+      <h1 id="campaignName">Đang tải…</h1>
+      <div class="sub" id="campaignSub"></div>
+    </div>
+    <div class="langbar">
+      <button class="langbtn active" data-lang="vi">Tiếng Việt</button>
+      <button class="langbtn" data-lang="en">English</button>
+      <button class="langbtn" data-lang="zh">中文</button>
+    </div>
+  </div>
+
+  <div class="notice" id="pausedNotice"></div>
+  <div class="errbox" id="errBox"></div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="card">
+    <h2 data-i18n="trendTitle">Xu hướng chi tiêu &amp; kết quả theo ngày</h2>
+    <div class="chart-box"><canvas id="trendChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="chartTitle">So sánh chi tiêu &amp; kết quả theo từng quảng cáo</h2>
+    <div class="chart-box"><canvas id="adChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="adsetTableTitle">Chi tiết theo Nhóm quảng cáo (Ad Set)</h2>
+    <table id="adsetTable">
+      <thead><tr>
+        <th data-i18n="colAdset">Nhóm quảng cáo</th><th data-i18n="colStatus">Trạng thái</th>
+        <th data-i18n="colBudget">Ngân sách/ngày</th><th data-i18n="colSpend">Chi tiêu</th>
+        <th data-i18n="colImpr">Hiển thị</th><th data-i18n="colReach">Tiếp cận</th>
+        <th data-i18n="colFreq">Tần suất</th><th data-i18n="colResult">Kết quả</th>
+        <th data-i18n="colCPR">Chi phí/kết quả</th>
+      </tr></thead>
+      <tbody id="adsetBody"><tr><td colspan="9" class="loading">…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="adTableTitle">Chi tiết theo Quảng cáo (Ad)</h2>
+    <table id="adTable">
+      <thead><tr>
+        <th data-i18n="colAd">Quảng cáo</th><th data-i18n="colStatus">Trạng thái</th>
+        <th data-i18n="colSpend">Chi tiêu</th><th data-i18n="colImpr">Hiển thị</th>
+        <th data-i18n="colClicks">Lượt click</th><th data-i18n="colCTR">CTR</th>
+        <th data-i18n="colCPM">CPM</th><th data-i18n="colResultMsg">Kết quả (nhắn tin)</th>
+        <th data-i18n="colCPR">Chi phí/kết quả</th>
+      </tr></thead>
+      <tbody id="adBody"><tr><td colspan="9" class="loading">…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="foot" id="lastUpdated"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js"></script>
+<script>
+const I18N = {
+  vi: {
+    statusPaused: 'Tạm dừng', statusActive: 'Đang chạy', statusOther: 'Khác',
+    noticePaused: '⏸️ Chiến dịch đang ở trạng thái PAUSED (tạm dừng) — số liệu sẽ tự cập nhật khi được kích hoạt.',
+    kpiSpend: 'Tổng chi tiêu', kpiImpr: 'Lượt hiển thị', kpiReach: 'Tiếp cận', kpiClicks: 'Lượt click',
+    kpiCTR: 'CTR', kpiCPM: 'CPM', kpiFreq: 'Tần suất', kpiResult: 'Kết quả (nhắn tin)', kpiCPR: 'Chi phí / kết quả',
+    kpiResultSub: 'Cuộc trò chuyện qua tin nhắn',
+    trendTitle: 'Xu hướng chi tiêu &amp; kết quả theo ngày',
+    chartTitle: 'So sánh chi tiêu &amp; kết quả theo từng quảng cáo',
+    chartSpend: 'Chi tiêu (VNĐ)', chartResult: 'Kết quả (tin nhắn)',
+    adsetTableTitle: 'Chi tiết theo Nhóm quảng cáo (Ad Set)', adTableTitle: 'Chi tiết theo Quảng cáo (Ad)',
+    colAdset: 'Nhóm quảng cáo', colAd: 'Quảng cáo', colStatus: 'Trạng thái', colBudget: 'Ngân sách/ngày',
+    colSpend: 'Chi tiêu', colImpr: 'Hiển thị', colReach: 'Tiếp cận', colFreq: 'Tần suất', colResult: 'Kết quả',
+    colCPR: 'Chi phí/kết quả', colClicks: 'Lượt click', colCTR: 'CTR', colCPM: 'CPM', colResultMsg: 'Kết quả (nhắn tin)',
+    updated: 'Cập nhật lúc', noData: 'Không có dữ liệu', loadErr: 'Không tải được data.json: '
+  },
+  en: {
+    statusPaused: 'Paused', statusActive: 'Active', statusOther: 'Other',
+    noticePaused: '⏸️ This campaign is currently PAUSED — figures will update automatically once activated.',
+    kpiSpend: 'Total Spend', kpiImpr: 'Impressions', kpiReach: 'Reach', kpiClicks: 'Clicks',
+    kpiCTR: 'CTR', kpiCPM: 'CPM', kpiFreq: 'Frequency', kpiResult: 'Results (messages)', kpiCPR: 'Cost per Result',
+    kpiResultSub: 'Messaging conversations started',
+    trendTitle: 'Daily Spend &amp; Results Trend',
+    chartTitle: 'Spend &amp; Results by Ad',
+    chartSpend: 'Spend (VND)', chartResult: 'Results (messages)',
+    adsetTableTitle: 'Ad Set Breakdown', adTableTitle: 'Ad Breakdown',
+    colAdset: 'Ad Set', colAd: 'Ad', colStatus: 'Status', colBudget: 'Daily Budget',
+    colSpend: 'Spend', colImpr: 'Impressions', colReach: 'Reach', colFreq: 'Frequency', colResult: 'Results',
+    colCPR: 'Cost/Result', colClicks: 'Clicks', colCTR: 'CTR', colCPM: 'CPM', colResultMsg: 'Results (messages)',
+    updated: 'Updated at', noData: 'No data', loadErr: 'Could not load data.json: '
+  },
+  zh: {
+    statusPaused: '已暂停', statusActive: '进行中', statusOther: '其他',
+    noticePaused: '⏸️ 该广告系列目前处于「已暂停」状态 — 启用后数据将自动更新。',
+    kpiSpend: '总花费', kpiImpr: '展示次数', kpiReach: '覆盖人数', kpiClicks: '点击次数',
+    kpiCTR: '点击率 (CTR)', kpiCPM: '千次展示费用 (CPM)', kpiFreq: '频次', kpiResult: '成效（私信）', kpiCPR: '每次成效费用',
+    kpiResultSub: '开始的私信对话',
+    trendTitle: '每日花费与成效趋势',
+    chartTitle: '各广告的花费与成效对比',
+    chartSpend: '花费（越南盾）', chartResult: '成效（私信）',
+    adsetTableTitle: '广告组（Ad Set）明细', adTableTitle: '广告（Ad）明细',
+    colAdset: '广告组', colAd: '广告', colStatus: '状态', colBudget: '每日预算',
+    colSpend: '花费', colImpr: '展示次数', colReach: '覆盖人数', colFreq: '频次', colResult: '成效',
+    colCPR: '每次成效费用', colClicks: '点击次数', colCTR: '点击率', colCPM: 'CPM', colResultMsg: '成效（私信）',
+    updated: '更新于', noData: '暂无数据', loadErr: '无法加载 data.json：'
+  }
+};
+
+let currentLang = 'vi';
+let DATA = null;
+let trendChart = null, adChart = null;
+
+const fmtVND = n => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(n || 0);
+const fmtNum = n => new Intl.NumberFormat('vi-VN').format(n || 0);
+const fmtPct = n => (n || 0).toFixed(2) + '%';
+
+function statusInfo(status, dict){
+  const s = (status || '').toUpperCase();
+  if (s === 'ACTIVE') return { cls: 'active', text: dict.statusActive };
+  if (s === 'PAUSED') return { cls: 'paused', text: dict.statusPaused };
+  return { cls: 'other', text: dict.statusOther };
+}
+
+async function loadData(){
+  const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+  if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+  return res.json();
+}
+
+function render(){
+  const dict = I18N[currentLang];
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll('.langbtn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+
+  if (!DATA) return;
+  const c = DATA.campaign;
+  const st = statusInfo(c.effective_status || c.status, dict);
+  document.getElementById('campaignName').innerHTML = `${c.name} <span class="badge ${st.cls}">${st.text}</span>`;
+  document.getElementById('campaignSub').textContent = `${c.objective || ''} · act_${c.id ? '' : ''}`.trim();
+  const notice = document.getElementById('pausedNotice');
+  notice.textContent = dict.noticePaused;
+  notice.classList.toggle('show', st.cls === 'paused');
+
+  const m = c.metrics || {};
+  const kpis = [
+    { label: dict.kpiSpend, value: fmtVND(m.spend) },
+    { label: dict.kpiImpr, value: fmtNum(m.impressions) },
+    { label: dict.kpiReach, value: fmtNum(m.reach) },
+    { label: dict.kpiClicks, value: fmtNum(m.clicks) },
+    { label: dict.kpiCTR, value: fmtPct(m.ctr) },
+    { label: dict.kpiCPM, value: fmtVND(m.cpm) },
+    { label: dict.kpiFreq, value: (m.frequency || 0).toFixed(2) },
+    { label: dict.kpiResult, value: fmtNum(m.results), sub: dict.kpiResultSub },
+    { label: dict.kpiCPR, value: fmtVND(m.cost_per_result) },
+  ];
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+    <div class="kpi"><div class="label">${k.label}</div><div class="value">${k.value}</div>
+    ${k.sub ? `<div class="sublabel">${k.sub}</div>` : ''}</div>`).join('');
+
+  const adsetBody = document.getElementById('adsetBody');
+  adsetBody.innerHTML = (DATA.adsets || []).map(a => {
+    const s = statusInfo(a.effective_status || a.status, dict);
+    const am = a.metrics || {};
+    return `<tr>
+      <td><span class="status-dot ${s.cls}"></span>${a.name}</td>
+      <td>${s.text}</td><td>${fmtVND(a.daily_budget)}</td><td>${fmtVND(am.spend)}</td>
+      <td>${fmtNum(am.impressions)}</td><td>${fmtNum(am.reach)}</td>
+      <td>${(am.frequency || 0).toFixed(2)}</td><td>${fmtNum(am.results)}</td>
+      <td>${fmtVND(am.cost_per_result)}</td></tr>`;
+  }).join('') || `<tr><td colspan="9">${dict.noData}</td></tr>`;
+
+  const adBody = document.getElementById('adBody');
+  adBody.innerHTML = (DATA.ads || []).map(a => {
+    const s = statusInfo(a.effective_status || a.status, dict);
+    const am = a.metrics || {};
+    const creative = a.creative || {};
+    return `<tr>
+      <td><div class="name-cell">
+        <img class="thumb" src="${creative.image || ''}" onerror="this.style.visibility='hidden'">
+        <div><div class="name-txt">${a.name}</div><div class="name-sub">${(creative.body || '').slice(0, 60)}</div></div>
+      </div></td>
+      <td><span class="status-dot ${s.cls}"></span>${s.text}</td>
+      <td>${fmtVND(am.spend)}</td><td>${fmtNum(am.impressions)}</td><td>${fmtNum(am.clicks)}</td>
+      <td>${fmtPct(am.ctr)}</td><td>${fmtVND(am.cpm)}</td><td>${fmtNum(am.results)}</td>
+      <td>${fmtVND(am.cost_per_result)}</td></tr>`;
+  }).join('') || `<tr><td colspan="9">${dict.noData}</td></tr>`;
+
+  renderTrendChart(dict);
+  renderAdChart(dict);
+
+  document.getElementById('lastUpdated').textContent =
+    `${dict.updated} ${new Date(DATA.generated_at).toLocaleString(currentLang === 'zh' ? 'zh-CN' : currentLang === 'en' ? 'en-US' : 'vi-VN')}`;
+}
+
+function renderTrendChart(dict){
+  const daily = DATA.daily || [];
+  const labels = daily.map(d => d.date_start);
+  const spend = daily.map(d => d.spend);
+  const results = daily.map(d => d.results);
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: dict.chartSpend, data: spend, borderColor: '#3b82f6', backgroundColor: '#3b82f633', yAxisID: 'y', tension: .3 },
+        { label: dict.chartResult, data: results, borderColor: '#10b981', backgroundColor: '#10b98133', yAxisID: 'y1', tension: .3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { type: 'linear', position: 'left', beginAtZero: true },
+        y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function renderAdChart(dict){
+  const ads = DATA.ads || [];
+  const labels = ads.map(a => a.name);
+  const spend = ads.map(a => (a.metrics || {}).spend || 0);
+  const results = ads.map(a => (a.metrics || {}).results || 0);
+  const ctx = document.getElementById('adChart').getContext('2d');
+  if (adChart) adChart.destroy();
+  adChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: dict.chartSpend, data: spend, backgroundColor: '#3b82f6', yAxisID: 'y' },
+        { label: dict.chartResult, data: results, backgroundColor: '#10b981', yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { type: 'linear', position: 'left', beginAtZero: true },
+        y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+document.querySelectorAll('.langbtn').forEach(btn => {
+  btn.addEventListener('click', () => { currentLang = btn.dataset.lang; render(); });
+});
+
+(async () => {
+  try {
+    DATA = await loadData();
+    render();
+  } catch (e) {
+    const box = document.getElementById('errBox');
+    box.style.display = 'block';
+    box.textContent = I18N[currentLang].loadErr + e.message;
+    render();
+  }
+})();
+</script>
+</body>
+</html>

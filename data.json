@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-07-08T00:00:00Z",
+  "campaign": {
+    "id": "120246939599090259",
+    "name": "TV Khung Tranh Coocaa - Engagement - T7/2026",
+    "status": "PAUSED",
+    "effective_status": "PAUSED",
+    "objective": "OUTCOME_ENGAGEMENT",
+    "metrics": {
+      "spend": 0, "impressions": 0, "reach": 0, "clicks": 0,
+      "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0,
+      "results": 0, "cost_per_result": 0,
+      "date_start": null, "date_stop": null
+    }
+  },
+  "adsets": [
+    {
+      "id": "120246942870760259",
+      "name": "Bài 1 - Storytelling - 24-44 VN",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": 100000,
+      "optimization_goal": "REPLIES",
+      "metrics": { "spend": 0, "impressions": 0, "reach": 0, "clicks": 0, "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0, "results": 0, "cost_per_result": 0 }
+    },
+    {
+      "id": "120246943136070259",
+      "name": "Bài 2 - Truoc Sau - 24-44 VN",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": 100000,
+      "optimization_goal": "REPLIES",
+      "metrics": { "spend": 0, "impressions": 0, "reach": 0, "clicks": 0, "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0, "results": 0, "cost_per_result": 0 }
+    },
+    {
+      "id": "120246943314180259",
+      "name": "Bài 3 - So lieu soc - 24-44 VN",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "daily_budget": 100000,
+      "optimization_goal": "REPLIES",
+      "metrics": { "spend": 0, "impressions": 0, "reach": 0, "clicks": 0, "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0, "results": 0, "cost_per_result": 0 }
+    }
+  ],
+  "ads": [
+    {
+      "id": "120246943727850259",
+      "name": "Coocaa Frame TV - Bài 1 Storytelling - Ad",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "adset_id": "120246942870760259",
+      "creative": {
+        "id": "1371336991662972",
+        "name": "Coocaa Frame TV - Bài 1 Storytelling",
+        "image": "https://scontent-sea5-1.xx.fbcdn.net/v/t45.1600-4/741884211_1529145182278809_3050919634187510009_n.png",
+        "body": "Cách đây 3 tháng, chị Thanh (34 tuổi, quận Gò Vấp) từng chạy 4 cửa hàng điện máy để tìm mua TV..."
+      },
+      "metrics": { "spend": 0, "impressions": 0, "reach": 0, "clicks": 0, "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0, "results": 0, "cost_per_result": 0 }
+    },
+    {
+      "id": "120246943729180259",
+      "name": "Coocaa Frame TV - Bài 2 Truoc Sau - Ad",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "adset_id": "120246943136070259",
+      "creative": {
+        "id": "2258346784984308",
+        "name": "Coocaa Frame TV - Bài 2 Trước Sau",
+        "image": "https://scontent-sea1-1.xx.fbcdn.net/v/t45.1600-4/741279030_1529145595612101_486034434347703944_n.png",
+        "body": "Trước: màn hình đen phá dáng phòng khách. Sau: một bức tranh nghệ thuật thật sự. INBOX để nhận bảng giá ưu đãi 50%."
+      },
+      "metrics": { "spend": 0, "impressions": 0, "reach": 0, "clicks": 0, "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0, "results": 0, "cost_per_result": 0 }
+    },
+    {
+      "id": "120246943730670259",
+      "name": "Coocaa Frame TV - Bài 3 So lieu soc - Ad",
+      "status": "PAUSED",
+      "effective_status": "PAUSED",
+      "adset_id": "120246943314180259",
+      "creative": {
+        "id": "1669444820778503",
+        "name": "Coocaa Frame TV - Bài 3 Số liệu sốc",
+        "image": "https://scontent-sea5-1.xx.fbcdn.net/v/t45.1600-4/739117884_1529145648945429_5957787301282592279_n.png",
+        "body": "5.000.000đ là số tiền bạn tiết kiệm được khi mua TV Khung Tranh Coocaa hôm nay. INBOX để nhận bảng giá."
+      },
+      "metrics": { "spend": 0, "impressions": 0, "reach": 0, "clicks": 0, "ctr": 0, "cpm": 0, "cpc": 0, "frequency": 0, "results": 0, "cost_per_result": 0 }
+    }
+  ],
+  "daily": []
+}
